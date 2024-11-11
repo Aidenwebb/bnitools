@@ -37,7 +37,85 @@
     <div class="row">
         <!-- Form Container -->
         <div class="col-md-6">
+            
+            <!-- Opener Section -->
+            <h3>Opener</h3>
+            <div class="form-group">
+                <label for="opener" >Opener</label>
+                <input type="text" class="form-control" id="opener" placeholder="Enter your opener" />
+            </div>
+
+            <!-- Introduction Section -->
+            <h3>Introduction and Category</h3>
+            <div class="form-group">
+                <label for="yourName">Your Name</label>
+                <input type="text" class="form-control" id="yourName" placeholder="Enter your name" />
+            </div>
+            <div class="form-group">
+                <label for="businessName">Your Business Name</label>
+                <input type="text" class="form-control" id="businessName" placeholder="Enter your business name" />
+            </div>
+
+            <!-- Category Section -->
+            <div class="form-group">
+                <label for="yourCategory">Your Category</label>
+                <input type="text" class="form-control" id="yourCategory" placeholder="Enter your category" />
+            </div>
+
+            <!-- Referral Request Section -->
+            <h3>Referral Request</h3>
+            <label class="d-block" class="form-heading">Referral Request Type</label>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" id="customerRadio" name="referralType" value="Customer" checked />
+                <label class="form-check-label" for="customerRadio">Customer</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" id="partnerRadio" name="referralType" value="Referral Partner" />
+                <label class="form-check-label" for="partnerRadio">Referral Partner</label>
+            </div>
+
+            <!-- Customer Referral Request -->
+            <div class="form-group mt-3" id="problemStatementSection">
+                <label for="problemStatement" class="form-heading">Problem Statement (Who do you know that... )</label>
+                <textarea class="form-control" id="problemStatement" placeholder="Enter the problem statement"></textarea>
+            </div>
+
+            <!-- Referral Partner Details (Hidden by Default) -->
+            <div id="referralPartnerFields" style="display: none;">
+                <div class="form-group">
+                    <label for="industry" class="form-heading">Level 1 - Industry</label>
+                    <input type="text" class="form-control" id="industry" placeholder="Enter industry" />
+                </div>
+                <div class="form-group">
+                    <label for="companyName" class="form-heading">Level 2 - Company Name</label>
+                    <input type="text" class="form-control" id="companyName" placeholder="Enter company name" />
+                </div>
+                <div class="form-group">
+                    <label for="position" class="form-heading">Level 3 - Position of Decision Maker</label>
+                    <input type="text" class="form-control" id="position" placeholder="Enter position" />
+                </div>
+                <div class="form-group">
+                    <label for="specificPerson" class="form-heading">Level 4 - Specific Person's Name</label>
+                    <input type="text" class="form-control" id="specificPerson" placeholder="Enter person's name" />
+                </div>
+            </div>
+
+            <!-- Story Section -->
+            <h3>Story</h3>
+            <div class="form-group">
+                <label for="yourStory" class="form-heading">Your Story (because I can help them like I helped...)</label>
+                <textarea class="form-control" id="yourStory" placeholder="Enter your story"></textarea>
+            </div>
+
+            <!-- Closer Section -->
+            <h3>Closer</h3>
+            <div class="form-group">
+                <label for="closer" class="form-heading">Closer</label>
+                <input type="text" class="form-control" id="closer" placeholder="Enter your closer" />
+            </div>
+
             <!-- Customise Headings Toggle -->
+            <h3>Customisation options</h3>
             <div class="form-group">
                 <label for="customiseHeadings" class="form-heading">Customise Headings?</label>
                 <div class="form-check">
@@ -68,77 +146,6 @@
                     <label for="referralRequestHeading">Referral Request Heading</label>
                     <input type="text" class="form-control" id="referralRequestHeading" placeholder="Referral Request" />
                 </div>
-            </div>
-
-            <!-- Opener Section -->
-            <div class="form-group">
-                <label for="opener">Opener</label>
-                <input type="text" class="form-control" id="opener" placeholder="Enter your opener" />
-            </div>
-
-            <!-- Introduction Section -->
-            <div class="form-group">
-                <label for="yourName">Your Name</label>
-                <input type="text" class="form-control" id="yourName" placeholder="Enter your name" />
-            </div>
-            <div class="form-group">
-                <label for="businessName">Your Business Name</label>
-                <input type="text" class="form-control" id="businessName" placeholder="Enter your business name" />
-            </div>
-
-            <!-- Category Section -->
-            <div class="form-group">
-                <label for="yourCategory">Your Category</label>
-                <input type="text" class="form-control" id="yourCategory" placeholder="Enter your category" />
-            </div>
-
-            <!-- Referral Request Section -->
-            <label class="d-block">Referral Request Type</label>
-            <div class="form-check form-check-inline">
-                <input class="form-check-input" type="radio" id="customerRadio" name="referralType" value="Customer" checked />
-                <label class="form-check-label" for="customerRadio">Customer</label>
-            </div>
-            <div class="form-check form-check-inline">
-                <input class="form-check-input" type="radio" id="partnerRadio" name="referralType" value="Referral Partner" />
-                <label class="form-check-label" for="partnerRadio">Referral Partner</label>
-            </div>
-
-            <!-- Customer Referral Request -->
-            <div class="form-group mt-3" id="problemStatementSection">
-                <label for="problemStatement">Problem Statement (Who do you know that... )</label>
-                <textarea class="form-control" id="problemStatement" placeholder="Enter the problem statement"></textarea>
-            </div>
-
-            <!-- Referral Partner Details (Hidden by Default) -->
-            <div id="referralPartnerFields" style="display: none;">
-                <div class="form-group">
-                    <label for="industry">Level 1 - Industry</label>
-                    <input type="text" class="form-control" id="industry" placeholder="Enter industry" />
-                </div>
-                <div class="form-group">
-                    <label for="companyName">Level 2 - Company Name</label>
-                    <input type="text" class="form-control" id="companyName" placeholder="Enter company name" />
-                </div>
-                <div class="form-group">
-                    <label for="position">Level 3 - Position of Decision Maker</label>
-                    <input type="text" class="form-control" id="position" placeholder="Enter position" />
-                </div>
-                <div class="form-group">
-                    <label for="specificPerson">Level 4 - Specific Person's Name</label>
-                    <input type="text" class="form-control" id="specificPerson" placeholder="Enter person's name" />
-                </div>
-            </div>
-
-            <!-- Story Section -->
-            <div class="form-group">
-                <label for="yourStory">Your Story (because I can help them like I helped...)</label>
-                <textarea class="form-control" id="yourStory" placeholder="Enter your story"></textarea>
-            </div>
-
-            <!-- Closer Section -->
-            <div class="form-group">
-                <label for="closer">Closer</label>
-                <input type="text" class="form-control" id="closer" placeholder="Enter your closer" />
             </div>
 
             <!-- Custom Template Section -->
@@ -173,7 +180,8 @@
         {{#opener}}<p>{{opener}}</p>{{/opener}}
         <h4>{{introductionHeading}}</h4>
         <p>Good morning!</p>
-        <p>My name is <strong>{{yourName}}</strong> and my business is <strong>{{businessName}}</strong> in <strong>{{yourCategory}}</strong></p>
+        <p>My name is <strong>{{yourName}}</strong> and my business is <strong>{{businessName}}</strong>.</p>
+        <p>We are <strong>{{yourCategory}}</strong></p>
                        
         <h4>{{referralRequestHeading}}</h4>
         {{#isCustomer}}

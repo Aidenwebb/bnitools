@@ -7,6 +7,9 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/3.0.1/mustache.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/print-js/1.6.0/print.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/print-js/1.6.0/print.min.css">
+    
     <style>
         .container {
             margin-top: 20px;
@@ -192,7 +195,13 @@
                 </div>
                 <div id="estimatedTime" class="mt-2 text-muted">Approximate Speaking Time: --</div>
                 <!-- Presentation text -->
-                <h3 class="text-center">Presentation</h3>
+                <div class="d-flex align-items-center justify-content-between">
+                    <h3 class="text-center mb-0">Presentation</h3>
+                    <button type="button" class="btn btn-link p-0" onclick="printPresentation()" title="Print Presentation">
+                        <i class="fas fa-print fa-lg"></i>
+                    </button>
+                </div>
+                <br>
                 <div id="presentationText">Your presentation will appear here...</div>
             </div>
 
@@ -273,10 +282,7 @@
         document.getElementById('presentationText').innerHTML = "Your presentation will appear here...";
         // Reset the estimated time
         document.getElementById('estimatedTime').innerText = "Approximate Speaking Time: --";
-    }
-    
-    
-    
+    }   
 
     function addInputListeners() {
         const inputs = document.querySelectorAll('input, textarea');
@@ -348,7 +354,17 @@
 
         document.getElementById('estimatedTime').innerText = `Approximate Speaking Time: ${seconds} seconds`;
     }
-
+    
+    function printPresentation() {
+        printJS({
+            printable: 'presentationText',
+            type: 'html',
+            css: 'https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css',
+            style: 'body { font-family: Arial, sans-serif; margin: 20px; } h3 { text-align: center; }',
+            scanStyles: false // Only applies specific CSS styles provided, preventing unwanted styles
+        });
+    }
+    
     // Update speaking time whenever WPM or presentation text changes
     document.getElementById('wpm').addEventListener('input', updateEstimatedTime);
 

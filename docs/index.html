@@ -38,6 +38,9 @@
     <div class="row">
         <!-- Form Container -->
         <div class="col-md-6">
+            <button type="button" class="btn btn-secondary mt-3" onclick="loadExampleText()">Load Example Text</button>
+            <button type="button" class="btn btn-danger mt-3 ml-2" onclick="clearFields()">Clear Fields</button>
+
             
             <!-- Opener Section -->
             <h3>Opener</h3>
@@ -79,12 +82,12 @@
                 </div>
             <label class="d-block form-heading" >Referral Request Type. (I need a...)</label>
             <div class="form-check form-check-inline">
-                <input class="form-check-input" type="radio" id="customerRadio" name="referralType" value="Customer" checked />
-                <label class="form-check-label" for="customerRadio">Customer</label>
+                <input class="form-check-input" type="radio" id="customerRadio" name="referralType" value="Customer" />
+                <label class="form-check-label" for="customerRadio">Someone with a problem</label>
             </div>
             <div class="form-check form-check-inline">
-                <input class="form-check-input" type="radio" id="partnerRadio" name="referralType" value="Referral Partner" />
-                <label class="form-check-label" for="partnerRadio">Referral Partner</label>
+                <input class="form-check-input" type="radio" id="partnerRadio" name="referralType" value="Referral Partner" checked/>
+                <label class="form-check-label" for="partnerRadio">Specific Person</label>
             </div>
 
             <!-- Customer Referral Request -->
@@ -233,6 +236,42 @@
         templateField.value = defaultTemplate; // Load the default template into the textarea
         generatePresentation(); // Refresh the presentation with the default template
     }
+
+    function loadExampleText() {
+        document.getElementById('opener').value = "Did you know that 60% of small businesses go out of business within six months of a major cyber attack?";
+        document.getElementById('yourName').value = "Aiden Arnkels-Webb";
+        document.getElementById('businessName').value = "Rootwire";
+        document.getElementById('yourCategory').value = "Cybersecurity and IT Solutions Experts";
+        document.getElementById('problemStatement').value = "hates that their computer is always crashing.";
+        document.getElementById('industry').value = "Insurance";
+        document.getElementById('companyName').value = "Insurance4U";
+        document.getElementById('position').value = "Business Owner";
+        document.getElementById('specificPerson').value = "Dan James";
+        document.getElementById('yourStory').value = "Fred at Fred's Insurance. They were facing repeated network outages and security concerns that disrupted work. By implementing a proactive monitoring solution and optimising their network security, we reduced his downtime by 80%. Now his team can focus on their work without IT disruptions.";
+    
+        // Update the presentation text after loading example content
+        generatePresentation();
+    }
+
+    function clearFields() {
+        document.getElementById('opener').value = "";
+        document.getElementById('yourName').value = "";
+        document.getElementById('businessName').value = "";
+        document.getElementById('yourCategory').value = "";
+        document.getElementById('problemStatement').value = "";
+        document.getElementById('industry').value = "";
+        document.getElementById('companyName').value = "";
+        document.getElementById('position').value = "";
+        document.getElementById('specificPerson').value = "";
+        document.getElementById('yourStory').value = "";
+    
+        // Clear the presentation text preview
+        document.getElementById('presentationText').innerHTML = "Your presentation will appear here...";
+        // Reset the estimated time
+        document.getElementById('estimatedTime').innerText = "Approximate Speaking Time: --";
+    }
+    
+    
     
 
     function addInputListeners() {

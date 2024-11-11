@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BNI Weekly Presentation Builder</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/3.0.1/mustache.min.js"></script>
+    <style>
+        .container {
+            margin-top: 20px;
+        }
+
+        .output-container {
+            border: 1px solid #ddd;
+            padding: 15px;
+            background: #f9f9f9;
+            min-height: 300px;
+        }
+
+        .form-heading {
+            font-weight: bold;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .row {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2 class="text-center mb-4">BNI Presentation Builder</h2>
+    <div class="row">
+        <!-- Form Container -->
+        <div class="col-md-6">
+            <!-- Customise Headings Toggle -->
+            <div class="form-group">
+                <label for="customiseHeadings" class="form-heading">Customise Headings?</label>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="customiseHeadings" id="customiseNo" value="no" checked>
+                    <label class="form-check-label" for="customiseNo">No</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="customiseHeadings" id="customiseYes" value="yes">
+                    <label class="form-check-label" for="customiseYes">Yes</label>
+                </div>
+            </div>
+
+            <!-- Custom Headings Section (Hidden by Default) -->
+            <div id="customHeadingsSection" style="display: none;">
+                <div class="form-group">
+                    <label for="introductionHeading">Introduction Heading</label>
+                    <input type="text" class="form-control" id="introductionHeading" placeholder="Introduction & Category" />
+                </div>
+                <div class="form-group">
+                    <label for="categoryHeading">Category Heading</label>
+                    <input type="text" class="form-control" id="categoryHeading" placeholder="Category" />
+                </div>
+                <div class="form-group">
+                    <label for="storyHeading">Story Heading</label>
+                    <input type="text" class="form-control" id="storyHeading" placeholder="Story" />
+                </div>
+                <div class="form-group">
+                    <label for="referralRequestHeading">Referral Request Heading</label>
+                    <input type="text" class="form-control" id="referralRequestHeading" placeholder="Referral Request" />
+                </div>
+            </div>
+
+            <!-- Opener Section -->
+            <div class="form-group">
+                <label for="opener">Opener</label>
+                <input type="text" class="form-control" id="opener" placeholder="Enter your opener" />
+            </div>
+
+            <!-- Introduction Section -->
+            <div class="form-group">
+                <label for="yourName">Your Name</label>
+                <input type="text" class="form-control" id="yourName" placeholder="Enter your name" />
+            </div>
+            <div class="form-group">
+                <label for="businessName">Your Business Name</label>
+                <input type="text" class="form-control" id="businessName" placeholder="Enter your business name" />
+            </div>
+
+            <!-- Category Section -->
+            <div class="form-group">
+                <label for="yourCategory">Your Category</label>
+                <input type="text" class="form-control" id="yourCategory" placeholder="Enter your category" />
+            </div>
+
+            <!-- Referral Request Section -->
+            <label class="d-block">Referral Request Type</label>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" id="customerRadio" name="referralType" value="Customer" checked />
+                <label class="form-check-label" for="customerRadio">Customer</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" id="partnerRadio" name="referralType" value="Referral Partner" />
+                <label class="form-check-label" for="partnerRadio">Referral Partner</label>
+            </div>
+
+            <!-- Customer Referral Request -->
+            <div class="form-group mt-3" id="problemStatementSection">
+                <label for="problemStatement">Problem Statement (Who do you know that... )</label>
+                <textarea class="form-control" id="problemStatement" placeholder="Enter the problem statement"></textarea>
+            </div>
+
+            <!-- Referral Partner Details (Hidden by Default) -->
+            <div id="referralPartnerFields" style="display: none;">
+                <div class="form-group">
+                    <label for="industry">Level 1 - Industry</label>
+                    <input type="text" class="form-control" id="industry" placeholder="Enter industry" />
+                </div>
+                <div class="form-group">
+                    <label for="companyName">Level 2 - Company Name</label>
+                    <input type="text" class="form-control" id="companyName" placeholder="Enter company name" />
+                </div>
+                <div class="form-group">
+                    <label for="position">Level 3 - Position of Decision Maker</label>
+                    <input type="text" class="form-control" id="position" placeholder="Enter position" />
+                </div>
+                <div class="form-group">
+                    <label for="specificPerson">Level 4 - Specific Person's Name</label>
+                    <input type="text" class="form-control" id="specificPerson" placeholder="Enter person's name" />
+                </div>
+            </div>
+
+            <!-- Story Section -->
+            <div class="form-group">
+                <label for="yourStory">Your Story (because I can help them like I helped...)</label>
+                <textarea class="form-control" id="yourStory" placeholder="Enter your story"></textarea>
+            </div>
+
+            <!-- Closer Section -->
+            <div class="form-group">
+                <label for="closer">Closer</label>
+                <input type="text" class="form-control" id="closer" placeholder="Enter your closer" />
+            </div>
+
+            <!-- Custom Template Section -->
+            <div class="form-group mt-3">
+                <label for="template">Custom Template</label>
+                <textarea class="form-control" id="template" placeholder="Enter custom template with placeholders"></textarea>
+                <button type="button" class="btn btn-secondary mt-2" onclick="loadDefaultTemplate()">Load Default Template</button>
+            </div>
+        </div>
+
+        <!-- Output Container -->
+        <div class="col-md-6">
+            <div class="output-container" id="output">
+                <h3 class="text-center">Generated Presentation</h3>
+                <div id="presentationText">Your presentation will appear here...</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Custom Script -->
+<script>
+    // Default headings and template
+    const defaultHeadings = {
+        introduction: "Introduction & Category",
+        category: "Category",
+        story: "Story",
+        referralRequest: "Referral Request"
+    };
+    const defaultTemplate = `
+        {{#opener}}<h4>Opener</h4>{{/opener}}
+        {{#opener}}<p>{{opener}}</p>{{/opener}}
+        <h4>{{introductionHeading}}</h4>
+        <p>Good morning!</p>
+        <p>My name is <strong>{{yourName}}</strong> and my business is <strong>{{businessName}}</strong> in <strong>{{yourCategory}}</strong></p>
+                       
+        <h4>{{referralRequestHeading}}</h4>
+        {{#isCustomer}}
+        <p>Who do you know that... {{problemStatement}}</p>
+        {{/isCustomer}}
+        {{#isReferralPartner}}
+        <p>I’m looking to connect with <strong>{{position}}s</strong> in the <strong>{{industry}}</strong> industry. </p>
+        <p>If you know <strong>{{specificPerson}}</strong>, the <strong>{{position}}</strong> at <strong>{{companyName}}</strong> — I’d love an introduction.
+        {{/isReferralPartner}}
+
+        <h4>{{storyHeading}}</h4>
+        <p>because I can help them like I helped... {{yourStory}}</p>
+
+        {{#closer}}<h4>Closer</h4>{{/closer}}
+        {{#closer}}<p>{{closer}}</p>{{/closer}}
+    `;
+
+    function loadDefaultTemplate() {
+        const templateField = document.getElementById('template');
+        templateField.value = defaultTemplate; // Load the default template into the textarea
+        generatePresentation(); // Refresh the presentation with the default template
+    }
+    
+
+    function addInputListeners() {
+        const inputs = document.querySelectorAll('input, textarea');
+        inputs.forEach(input => input.addEventListener('input', generatePresentation));
+        document.querySelectorAll('input[name="referralType"]').forEach(radio => radio.addEventListener('change', toggleReferralFields));
+        document.querySelectorAll('input[name="customiseHeadings"]').forEach(radio => {
+            radio.addEventListener('change', () => {
+                document.getElementById("customHeadingsSection").style.display = radio.value === "yes" ? "block" : "none";
+                generatePresentation();
+            });
+        });
+
+    }
+
+    function toggleReferralFields() {
+        const isCustomer = document.getElementById("customerRadio").checked;
+        document.getElementById("problemStatementSection").style.display = isCustomer ? "block" : "none";
+        document.getElementById("referralPartnerFields").style.display = isCustomer ? "none" : "block";
+        generatePresentation();
+    }
+
+    // Generate presentation text based on the template
+    function generatePresentation() {
+        const useCustomHeadings = document.querySelector('input[name="customiseHeadings"]:checked').value === "yes";
+
+        // Gather data for template
+        const data = {
+            introductionHeading: useCustomHeadings ? document.getElementById('introductionHeading').value || defaultHeadings.introduction : defaultHeadings.introduction,
+            categoryHeading: useCustomHeadings ? document.getElementById('categoryHeading').value || defaultHeadings.category : defaultHeadings.category,
+            storyHeading: useCustomHeadings ? document.getElementById('storyHeading').value || defaultHeadings.story : defaultHeadings.story,
+            referralRequestHeading: useCustomHeadings ? document.getElementById('referralRequestHeading').value || defaultHeadings.referralRequest : defaultHeadings.referralRequest,
+            opener: document.getElementById('opener').value,
+            closer: document.getElementById('closer').value,
+            yourName: document.getElementById('yourName').value,
+            businessName: document.getElementById('businessName').value,
+            yourCategory: document.getElementById('yourCategory').value,
+            yourStory: document.getElementById('yourStory').value,
+            problemStatement: document.getElementById('problemStatement').value,
+            industry: document.getElementById('industry').value,
+            companyName: document.getElementById('companyName').value,
+            position: document.getElementById('position').value,
+            specificPerson: document.getElementById('specificPerson').value,
+            isCustomer: document.getElementById("customerRadio").checked,
+            isReferralPartner: document.getElementById("partnerRadio").checked
+        };
+
+        // Use custom template if provided, otherwise use default template
+        const template = document.getElementById('template').value.trim() || defaultTemplate;
+
+        // Render template with Mustache
+        const output = Mustache.render(template, data);
+        document.getElementById('presentationText').innerHTML = output;
+    }
+
+    // Initialize with default values and field visibility
+    addInputListeners();
+    toggleReferralFields();
+    generatePresentation();
+</script>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<div class="container mt-5">
+    <div class="card">
+        <div class="card-header bg-info text-white">
+            <h5>Presentation Tips & Tricks</h5>
+        </div>
+        <div class="card-body">
+            <ul>
+                <li><strong>Open with something interesting:</strong> Open with something interesting like a statistic, thought provoking question or a business USP, something that wakes the room up.</li>
+                <li><strong>Be as specific as possible with your referral request:</strong> If you have the name of someone you would like an introduction to, get that name out in the first half of your presentation. If you leave it too long, you'll be rushing and people cannot write down the name before the next persons presentation.</li>
+                <li><strong>Be clear with your referral</strong> Repeat the name. If it's a name with multiple spellings (eg. Steven / Stephen), spell the name so people can find them on LinkedIn.</li>
+                <li><strong>Don't stack names:</strong> Don't try and give multiple names during your presentation, people only have enough time to write down and remember one name well. Don't stress your audience!</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="container mt-5">
+    <div class="card">
+        <div class="card-header bg-info text-white">
+            <h5>Instructions </h5>
+        </div>
+        <div class="card-body">
+            <ul>
+                <li><strong>Customise Headings:</strong> Use the "Customise Headings" option to personalize each section title for a unique presentation.</li>
+                <li><strong>Use a Custom Template:</strong> Add placeholders like <code>{{yourName}}</code> or <code>{{businessName}}</code> in the "Custom Template" section to tailor your presentation format.</li>
+                <li><strong>Preview as You Type:</strong> The preview updates instantly as you type, so you can see how the presentation will look in real-time.</li>
+                <li><strong>Switch Referral Types:</strong> Toggle between "Customer" and "Referral Partner" to reveal relevant fields for a more targeted presentation.</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

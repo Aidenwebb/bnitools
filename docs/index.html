@@ -176,10 +176,22 @@
         <!-- Output Container -->
         <div class="col-md-6">
             <div class="output-container" id="output">
-                <h3 class="text-center">Generated Presentation</h3>
+                <h3 class="text-center">Presentation time</h3>
+                <!-- Presentation Time -->
+                <div class="form-group mt-4">
+                    <label for="wpm">Words Per Minute (WPM)</label>
+                    <input type="number" class="form-control" id="wpm" placeholder="Enter your speaking WPM (e.g., 130)" value="130" min="50" max="300">
+                    <small class="form-text text-muted">The average speaking rate is around 130-150 WPM.</small>
+                </div>
+                <div id="estimatedTime" class="mt-2 text-muted">Approximate Speaking Time: --</div>
+                <!-- Presentation text -->
+                <h3 class="text-center">Presentation</h3>
                 <div id="presentationText">Your presentation will appear here...</div>
             </div>
+
         </div>
+
+    
     </div>
 </div>
 
@@ -274,7 +286,29 @@
         // Render template with Mustache
         const output = Mustache.render(template, data);
         document.getElementById('presentationText').innerHTML = output;
+
+        updateEstimatedTime(); // Calculate and display speaking time
+
     }
+
+    // Function to count words in the generated presentation
+    function countWords(text) {
+        return text.trim().split(/\s+/).length;
+    }
+
+    // Function to calculate and display estimated speaking time in seconds
+    function updateEstimatedTime() {
+        const presentationText = document.getElementById('presentationText').innerText;
+        const wordCount = countWords(presentationText);
+        const wpm = parseInt(document.getElementById('wpm').value, 10) || 130; // Default to 130 if empty or invalid
+        const seconds = Math.round((wordCount / wpm) * 60); // Calculate seconds
+
+        document.getElementById('estimatedTime').innerText = `Approximate Speaking Time: ${seconds} seconds`;
+    }
+
+    // Update speaking time whenever WPM or presentation text changes
+    document.getElementById('wpm').addEventListener('input', updateEstimatedTime);
+
 
     // Initialize with default values and field visibility
     addInputListeners();

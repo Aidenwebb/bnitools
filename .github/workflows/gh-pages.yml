@@ -1,0 +1,42 @@
+name: Deploy Jekyll Site to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./bnitools
+    steps:
+      # Checkout the repository
+      - uses: actions/checkout@v3
+
+      # Setup Ruby environment and cache bundler gems
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.1'  # Adjust the Ruby version if needed
+          bundler-cache: true
+
+      # Install dependencies using Bundler
+      - name: Install Dependencies
+        run: bundle install
+
+      # Build the Jekyll site; the output will be in the _site folder inside bnitools/
+      - name: Build Site with Jekyll
+        run: bundle exec jekyll build
+
+      # Ensure the custom domain (CNAME file) is in the build output
+      - name: Copy CNAME file
+        run: cp CNAME _site/
+
+      # Deploy the site using peaceiris/actions-gh-pages
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./_site

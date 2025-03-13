@@ -1,0 +1,71 @@
+:root {
+    --color-green: #d4edda;
+    --color-light-yellow: #fff3cd;
+    --color-amber: #ffeeba;
+    --color-light-red: #f8d7da;
+    --color-dark-red: #e47763;
+  }
+  
+  /* General styles */
+  body {
+    padding: 20px;
+    font-family: Arial, sans-serif;
+  }
+  
+  /* Upload card styles */
+  .upload-card {
+    border: 2px dashed #aaa;
+    border-radius: 5px;
+    padding: 30px;
+    text-align: center;
+    background-color: #f9f9f9;
+    margin-bottom: 20px;
+  }
+  
+  .upload-card.dragover {
+    background-color: #e6f7ff;
+    border-color: #3399ff;
+  }
+  
+  .table-responsive {
+    overflow-x: auto;
+  }
+  
+  /* You may also include your print styles here if preferred */
+  @media print {
+    @page {
+      size: A4 landscape;
+      margin: 10mm;
+    }
+    body {
+      font-size: 10pt;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      border: 1px solid #000;
+      padding: 5px;
+    }
+  }
+  
+  .container {
+    margin-top: 20px;
+  }
+  .output-container {
+    border: 1px solid #ddd;
+    padding: 15px;
+    background: #f9f9f9;
+    min-height: 300px;
+  }
+  .form-heading {
+    font-weight: bold;
+    margin-top: 20px;
+  }
+  
+  @media (max-width: 768px) {
+    .row {
+      flex-direction: column;
+    }
+  }

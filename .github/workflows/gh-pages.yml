@@ -55,9 +55,14 @@ jobs:
             cp CNAME _site/
           fi
 
+      # Upload of artifact fails because _site is in .gitignore?
+      - name: Rename _site folder to _ghpages
+        run: mv _site _ghpages
+  
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
-        
+        with:
+          path: _ghpages
 
   deploy:
     environment:

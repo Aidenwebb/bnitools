@@ -1,42 +1,65 @@
-name: Deploy Jekyll Site to GitHub Pages
+name: Deploy Jekyll site to Pages
 
 on:
   push:
-    branches:
-      - main
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
 
 jobs:
-  build-and-deploy:
+  build:
     runs-on: ubuntu-latest
     defaults:
+      # Set the working directory to your Jekyll site folder
       run:
         working-directory: ./bnitools
     steps:
-      # Checkout the repository
-      - uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      # Setup Ruby environment and cache bundler gems
       - name: Setup Ruby
-        uses: ruby/setup-ruby@v1
+        # https://github.com/ruby/setup-ruby/releases/tag/v1.207.0
+        uses: ruby/setup-ruby@4a9ddd6f338a97768b8006bf671dfbad383215f4
         with:
-          ruby-version: '3.1'  # Adjust the Ruby version if needed
-          bundler-cache: true
+          ruby-version: '3.1' # Not needed with a .ruby-version file
+          bundler-cache: true # runs 'bundle install' and caches installed gems automatically
+          cache-version: 0 # Increment this number if you need to re-download cached gems
 
-      # Install dependencies using Bundler
-      - name: Install Dependencies
-        run: bundle install
+      - name: Setup Pages
+        id: pages
+        uses: actions/configure-pages@v5
 
-      # Build the Jekyll site; the output will be in the _site folder inside bnitools/
-      - name: Build Site with Jekyll
-        run: bundle exec jekyll build
+      - name: Build with Jekyll
+        run: bundle exec jekyll build --baseurl "${{ steps.pages.outputs.base_path }}"
+        env:
+          JEKYLL_ENV: production
 
-      # Ensure the custom domain (CNAME file) is in the build output
       - name: Copy CNAME file
-        run: cp CNAME _site/
+        run: |
+          if [ -f CNAME ]; then
+            cp CNAME _site/
+          fi
 
-      # Deploy the site using peaceiris/actions-gh-pages
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./_site
+          path: _site
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

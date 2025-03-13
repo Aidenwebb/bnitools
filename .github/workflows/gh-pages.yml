@@ -45,6 +45,10 @@ jobs:
         env:
           JEKYLL_ENV: production
 
+      # Debug step: list the contents of the build output folder
+      - name: List build output
+        run: ls -al _site
+
       - name: Copy CNAME file
         run: |
           if [ -f CNAME ]; then

@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Traffic Lights Data & Analysis</title>
+    <!-- Bootstrap CSS (Bootstrap 5) -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <!-- DataTables CSS for Bootstrap 5 -->
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css"
+    />
+    <!-- DataTables Responsive CSS -->
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css"
+    />
+    <!-- SheetJS Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+      body {
+        padding: 20px;
+        font-family: Arial, sans-serif;
+      }
+      .upload-card {
+        border: 2px dashed #aaa;
+        border-radius: 5px;
+        padding: 30px;
+        text-align: center;
+        background-color: #f9f9f9;
+        margin-bottom: 20px;
+      }
+      .upload-card.dragover {
+        background-color: #e6f7ff;
+        border-color: #3399ff;
+      }
+      .table-responsive {
+        overflow-x: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1 class="mb-4">Traffic Lights Data & Analysis</h1>
+      <!-- Upload Section Card -->
+      <div id="uploadCard" class="upload-card mb-4">
+        <p>Drag & drop the traffic lights XLSX file here, or click to browse</p>
+        <input
+          type="file"
+          id="fileInput"
+          class="form-control d-none"
+          accept=".xlsx, .xls"
+        />
+        <button id="browseButton" class="btn btn-primary mb-2">Browse</button>
+      </div>
+      <!-- Tabs navigation -->
+      <ul class="nav nav-tabs" id="myTab" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button
+            class="nav-link active"
+            id="data-tab"
+            data-bs-toggle="tab"
+            data-bs-target="#data"
+            type="button"
+            role="tab"
+            aria-controls="data"
+            aria-selected="true"
+          >Data</button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button
+            class="nav-link"
+            id="analysis-tab"
+            data-bs-toggle="tab"
+            data-bs-target="#analysis"
+            type="button"
+            role="tab"
+            aria-controls="analysis"
+            aria-selected="false"
+          >Analysis</button>
+        </li>
+      </ul>
+      <!-- Tabs content -->
+      <div class="tab-content" id="myTabContent">
+        <!-- Data Tab -->
+        <div class="tab-pane fade show active" id="data" role="tabpanel" aria-labelledby="data-tab">
+          <div id="dataTableContainer" class="table-responsive"></div>
+        </div>
+        <!-- Analysis Tab -->
+        <div class="tab-pane fade" id="analysis" role="tabpanel" aria-labelledby="analysis-tab">
+          <div id="analysisTableContainer" class="table-responsive"></div>
+        </div>
+      </div>
+    </div>
+    <!-- jQuery (required for DataTables) -->
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- DataTables JS for Bootstrap 5 -->
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <!-- DataTables Responsive JS -->
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
+    <script>
+      // ---------------- Helper Functions for Highlighting ----------------
+      const darkRed = "#e47763"; // Slightly less aggressive dark red
+
+      // Absentism (A column)
+      function getAbsentColor(value) {
+        if (value === 0) return "#d4edda"; // green
+        else if (value === 1) return "#fff3cd"; // light yellow
+        else if (value === 2) return "#ffeeba"; // amber
+        else return darkRed;
+      }
+
+      // Referrals Given per week (computed ratio)
+      function getReferralGivenPerWeekColor(val) {
+        if (val >= 1.2) return "#d4edda"; // green
+        else if (val >= 1) return "#fff3cd"; // light yellow
+        else if (val >= 0.75) return "#ffeeba"; // amber
+        else if (val >= 0.5) return "#f8d7da"; // light red
+        else return darkRed;
+      }
+
+      // Thank You for the Business (raw thankedAmount)
+      function getThankedColor(amount) {
+        if (amount < 500) return darkRed;
+        else if (amount < 2500) return "#f8d7da"; // light red
+        else if (amount < 7500) return "#ffeeba"; // amber
+        else return "#d4edda"; // green
+      }
+
+      // Average Visitors per week (computed)
+      function getAvgVisitorsColor(val) {
+        if (val < 0.073) return darkRed;
+        else if (val < 0.167) return "#f8d7da";
+        else if (val < 0.25) return "#ffeeba";
+        else if (val < 0.5) return "#fff3cd";
+        else return "#d4edda";
+      }
+
+      // 121's per week (computed)
+      function get121Color(val) {
+        if (val < 0.25) return darkRed;
+        else if (val < 0.5) return "#ffeeba";
+        else return "#d4edda";
+      }
+
+      // CEUs (raw or computed average)
+      function getCEUColor(val) {
+        if (val == 0) return darkRed;
+        else if (val == 1) return "#f8d7da";
+        else if (val == 2) return "#ffeeba";
+        else return "#d4edda";
+      }
+
+      // Testimonials (T column)
+      function getTestimonialsColor(val) {
+        if (val === 0) return darkRed;
+        else if (val === 1) return "#d4edda";
+        else return "";
+      }
+
+      // Score highlighting: based on the raw Score value.
+      function getScoreColor(score) {
+        if (score >= 70) return "#d4edda"; // green
+        else if (score >= 50) return "#ffeeba"; // amber
+        else if (score >= 30) return "#ef5350"; // red
+        else return darkRed;
+      }
+      // ---------------------------------------------------------------------
+
+      let tableRows = [];
+      let selectedFile = null;
+      const fileInput = document.getElementById("fileInput");
+      const browseButton = document.getElementById("browseButton");
+      const uploadCard = document.getElementById("uploadCard");
+
+      browseButton.addEventListener("click", () => fileInput.click());
+      fileInput.addEventListener("change", (e) => {
+        selectedFile = e.target.files[0];
+        if (selectedFile) processFile(selectedFile);
+      });
+      uploadCard.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        uploadCard.classList.add("dragover");
+      });
+      uploadCard.addEventListener("dragleave", (e) => {
+        e.preventDefault();
+        uploadCard.classList.remove("dragover");
+      });
+      uploadCard.addEventListener("drop", (e) => {
+        e.preventDefault();
+        uploadCard.classList.remove("dragover");
+        if (e.dataTransfer.files.length > 0) {
+          selectedFile = e.dataTransfer.files[0];
+          fileInput.files = e.dataTransfer.files;
+          processFile(selectedFile);
+        }
+      });
+
+      function processFile(file) {
+        document.getElementById("dataTableContainer").innerHTML = "";
+        document.getElementById("analysisTableContainer").innerHTML = "";
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          const data = event.target.result;
+          const workbook = XLSX.read(data, { type: "binary" });
+          const firstSheetName = workbook.SheetNames[0];
+          const worksheet = workbook.Sheets[firstSheetName];
+          const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+          let headerRowIndex = -1;
+          for (let i = 0; i < jsonData.length; i++) {
+            const row = jsonData[i];
+            if (row && row[0] === "Place" && row.includes("Score")) {
+              headerRowIndex = i;
+              break;
+            }
+          }
+          if (headerRowIndex === -1) {
+            alert("Table header not found in the spreadsheet.");
+            return;
+          }
+          tableRows = [];
+          for (let i = headerRowIndex + 1; i < jsonData.length; i++) {
+            const row = jsonData[i];
+            if (!row || row.every(cell => cell === null || cell === undefined || cell.toString().trim() === ""))
+              break;
+            tableRows.push(row);
+          }
+          renderDataTable(tableRows);
+          renderAnalysisTable(tableRows);
+        };
+        reader.readAsBinaryString(file);
+      }
+
+      // ---------- Render Data Table (Raw Data with Computed Highlighting) ----------
+      // Raw order: Place, Chapter, Name, P, A, L, M, S, G, R, V, T, CEU, 121, £/€, Score
+      const headersConfig = [
+        "Place", "Chapter", "Name", "P", "A", "L", "M", "S", "G", "R", "V", "T", "CEU", "121", "£/€", "Score",
+      ];
+
+      function renderDataTable(data) {
+        let html = "<table id='dataTable' class='table table-bordered table-striped'>";
+        html += "<thead><tr>";
+        headersConfig.forEach(col => { html += `<th>${col}</th>`; });
+        html += "</tr></thead><tbody>";
+        data.forEach(row => {
+          html += "<tr>";
+          // Compute totalWeeks = P + A + L + M + S (indexes 3 to 7)
+          const p = parseInt(row[3]) || 0;
+          const a = parseInt(row[4]) || 0;
+          const l = parseInt(row[5]) || 0;
+          const m = parseInt(row[6]) || 0;
+          const s = parseInt(row[7]) || 0;
+          const totalWeeks = p + a + l + m + s;
+          headersConfig.forEach((col, i) => {
+            let cellValue = row[i] !== undefined ? row[i] : "";
+            let style = "";
+            // Abscences (A, index 4)
+            if (i === 4) {
+              const absentVal = parseInt(cellValue) || 0;
+              style = `style="background-color:${getAbsentColor(absentVal)};"`;
+              cellValue = absentVal;
+            }
+            // Referrals Given (G, index 8): show raw value, highlight based on computed ratio.
+            else if (i === 8) {
+              const rawG = parseFloat(row[8]) || 0;
+              let computed = totalWeeks ? (rawG / totalWeeks).toFixed(2) : "N/A";
+              style = computed !== "N/A" ? `style="background-color:${getReferralGivenPerWeekColor(parseFloat(computed))};"` : "";
+              cellValue = rawG;
+            }
+            // Visitors (V, index 10): show raw, highlight based on computed avg.
+            else if (i === 10) {
+              const rawVisitors = parseFloat(row[10]) || 0;
+              let computed = totalWeeks ? (rawVisitors / totalWeeks).toFixed(2) : "N/A";
+              style = computed !== "N/A" ? `style="background-color:${getAvgVisitorsColor(parseFloat(computed))};"` : "";
+              cellValue = rawVisitors;
+            }
+            // Testimonials (T, index 11)
+            else if (i === 11) {
+              const testimonials = parseInt(row[11]) || 0;
+              style = `style="background-color:${getTestimonialsColor(testimonials)};"`;
+              cellValue = testimonials;
+            }
+            // CEUs (index 12)
+            else if (i === 12) {
+              const ceu = parseInt(row[12]) || 0;
+              style = `style="background-color:${getCEUColor(ceu)};"`;
+              cellValue = ceu;
+            }
+            // 121's (index 13): show raw value, highlight based on computed avg per week.
+            else if (i === 13) {
+              const ones121 = parseFloat(row[13]) || 0;
+              let computed = totalWeeks ? (ones121 / totalWeeks).toFixed(2) : "N/A";
+              style = computed !== "N/A" ? `style="background-color:${get121Color(parseFloat(computed))};"` : "";
+              cellValue = ones121;
+            }
+            // Thank You for Business (index 14)
+            else if (i === 14) {
+              const thankedAmount = parseFloat(row[14]) || 0;
+              style = `style="background-color:${getThankedColor(thankedAmount)};"`;
+              cellValue = thankedAmount;
+            }
+            // For Score (index 15)
+            else if (i === 15) {
+              const score = parseFloat(row[15]) || 0;
+              style = `style="background-color:${getScoreColor(score)};"`;
+              cellValue = score;
+            }
+            // For other numeric columns (P, L, M, S, R)
+            else if (["P", "L", "M", "S", "R"].includes(col)) {
+              cellValue = parseInt(cellValue) || 0;
+            }
+            html += `<td ${style}>${cellValue}</td>`;
+          });
+          html += "</tr>";
+        });
+        html += "</tbody></table>";
+        document.getElementById("dataTableContainer").innerHTML = html;
+        $("#dataTable").DataTable({
+          responsive: true,
+          pageLength: 100,
+          paging: true,
+          searching: true,
+          ordering: true,
+          order: [[15, "desc"]]
+        });
+      }
+
+      // ---------- Render Analysis Table ----------
+      function renderAnalysisTable(data) {
+        let html = "<table id='analysisTable' class='table table-bordered table-striped'>";
+        html += "<thead><tr>";
+        const analysisHeaders = [
+          "Name",
+          "Total Weeks",
+          "Avg Referral Value",
+          "Avg Thanked per Week",
+          "Referral Ratio",
+          "Avg Referrals Given per Week",
+          "Avg Referrals Received per Week",
+          "Avg Visitors per Week",
+          "Avg CEUs per Week",
+          "Score",
+        ];
+        analysisHeaders.forEach(title => { html += `<th>${title}</th>`; });
+        html += "</tr></thead><tbody>";
+        data.forEach(row => {
+          const name = row[2] !== undefined ? row[2] : "";
+          const p = parseFloat(row[3]) || 0;
+          const a = parseFloat(row[4]) || 0;
+          const l = parseFloat(row[5]) || 0;
+          const m = parseFloat(row[6]) || 0;
+          const s = parseFloat(row[7]) || 0;
+          const totalWeeks = p + a + l + m + s;
+          const referralsGiven = parseFloat(row[8]) || 0;
+          const referralsReceived = parseFloat(row[9]) || 0;
+          const visitors = parseFloat(row[10]) || 0;
+          const educationUnits = parseFloat(row[12]) || 0;
+          const thankedAmount = parseFloat(row[14]) || 0;
+          const score = parseFloat(row[15]) || 0;
+          
+          const avgReferralValue = referralsGiven ? (thankedAmount / referralsGiven).toFixed(2) : "N/A";
+          const avgThankedPerWeek = totalWeeks ? (thankedAmount / totalWeeks).toFixed(2) : "N/A";
+          const referralRatio = referralsReceived ? (referralsGiven / referralsReceived).toFixed(2) : "N/A";
+          const avgReferralsGivenPerWeek = totalWeeks ? (referralsGiven / totalWeeks).toFixed(2) : "N/A";
+          const avgReferralsReceivedPerWeek = totalWeeks ? (referralsReceived / totalWeeks).toFixed(2) : "N/A";
+          const avgVisitorsPerWeek = totalWeeks ? (visitors / totalWeeks).toFixed(2) : "N/A";
+          const avgCEUsPerWeek = totalWeeks ? (educationUnits / totalWeeks).toFixed(2) : "N/A";
+          
+          html += "<tr>";
+          html += `<td>${name}</td>`;
+          html += `<td>${totalWeeks}</td>`;
+          html += `<td data-bs-toggle="tooltip" data-bs-html="true" title="Thanked for ${thankedAmount} worth of business" style="background-color:${getThankedColor(thankedAmount)};">${avgReferralValue}</td>`;
+          html += `<td data-bs-toggle="tooltip" data-bs-html="true" title="Thanked for ${thankedAmount} worth of business" style="background-color:${getThankedColor(thankedAmount)};">${avgThankedPerWeek}</td>`;
+          html += `<td data-bs-toggle="tooltip" data-bs-html="true" title="Referrals Given: ${referralsGiven}<br>Referrals Received: ${referralsReceived}"`;
+          if (referralRatio !== "N/A") {
+            let ratio = parseFloat(referralRatio);
+            let bg = "";
+            if (ratio >= 1.5) bg = "#d4edda";
+            else if (ratio >= 1) bg = "#fff3cd";
+            else if (ratio >= 0.5) bg = "#f8d7da";
+            else bg = darkRed;
+            html += ` style="background-color:${bg};"`;
+          }
+          html += `>${referralRatio}</td>`;
+          html += `<td data-bs-toggle="tooltip" data-bs-html="true" title="Total Referrals Given: ${referralsGiven}" style="background-color:${getReferralGivenPerWeekColor(avgReferralsGivenPerWeek==="N/A"? 0 : parseFloat(avgReferralsGivenPerWeek))};">${avgReferralsGivenPerWeek}</td>`;
+          html += `<td data-bs-toggle="tooltip" data-bs-html="true" title="Total Referrals Received: ${referralsReceived}">${avgReferralsReceivedPerWeek}</td>`;
+          html += `<td data-bs-toggle="tooltip" data-bs-html="true" title="Total Visitors: ${visitors}" style="background-color:${getAvgVisitorsColor(avgVisitorsPerWeek==="N/A"? 0 : parseFloat(avgVisitorsPerWeek))};">${avgVisitorsPerWeek}</td>`;
+          html += `<td data-bs-toggle="tooltip" data-bs-html="true" title="Total CEUs: ${educationUnits}" style="background-color:${getCEUColor(avgCEUsPerWeek==="N/A"? 0 : parseFloat(avgCEUsPerWeek))};">${avgCEUsPerWeek}</td>`;
+          html += `<td data-bs-toggle="tooltip" data-bs-html="true" title="Score" style="background-color:${getScoreColor(score)};">${score}</td>`;
+          html += "</tr>";
+        });
+        html += "</tbody></table>";
+        document.getElementById("analysisTableContainer").innerHTML = html;
+        
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.map(function (tooltipTriggerEl) { return new bootstrap.Tooltip(tooltipTriggerEl); });
+        
+        $("#analysisTable").DataTable({
+          responsive: true,
+          pageLength: 100,
+          paging: true,
+          searching: true,
+          ordering: true,
+          autoWidth: false,
+          order: [[9, "desc"]]
+        });
+      }
+
+      $('a[data-bs-toggle="tab"]').on("shown.bs.tab", function (e) {
+        $($.fn.dataTable.tables(true)).DataTable().columns.adjust();
+      });
+
+      $("#dataTable").DataTable({
+        responsive: true,
+        pageLength: 100,
+        paging: true,
+        searching: true,
+        ordering: true,
+        order: [[15, "desc"]]
+      });
+    </script>
+  </body>
+</html>

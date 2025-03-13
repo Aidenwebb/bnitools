@@ -218,92 +218,90 @@ function renderDataTable(data) {
 }
 
 function renderAnalysisTable(data) {
-  let html = "<table id='analysisTable' class='table table-bordered table-striped'>";
-  html += "<thead><tr>";
-  const analysisHeaders = [
-    "Name", "Total Weeks", "Avg Referral Value", "Avg Thanked per Week", "Referral Ratio", "Avg Referrals Given per Week", "Avg Referrals Received per Week", "Avg Visitors per Week", "Avg CEUs per Week", "Score",
-  ];
-  analysisHeaders.forEach(title => { html += `<th>${title}</th>`; });
-  html += "</tr></thead><tbody>";
-  data.forEach(row => {
-    const name = row[2] !== undefined ? row[2] : "";
-    const p = parseFloat(row[3]) || 0;
-    const a = parseFloat(row[4]) || 0;
-    const l = parseFloat(row[5]) || 0;
-    const m = parseFloat(row[6]) || 0;
-    const s = parseFloat(row[7]) || 0;
-    const totalWeeks = p + a + l + m + s;
-    const referralsGiven = parseFloat(row[8]) || 0;
-    const referralsReceived = parseFloat(row[9]) || 0;
-    const visitors = parseFloat(row[10]) || 0;
-    const educationUnits = parseFloat(row[12]) || 0;
-    const thankedAmount = parseFloat(row[14]) || 0;
-    const score = parseFloat(row[15]) || 0;
+    let html = "<table id='analysisTable' class='table table-bordered table-striped'>";
+    html += "<thead><tr>";
+    const analysisHeaders = [
+      "Name", "Total Weeks", "Avg Referral Value", "Avg Thanked per Week", "Referral Ratio", "Avg Referrals Given per Week", "Avg Referrals Received per Week", "Avg Visitors per Week", "Avg CEUs per Week", "Score",
+    ];
+    analysisHeaders.forEach(title => { html += `<th>${title}</th>`; });
+    html += "</tr></thead><tbody>";
+    data.forEach(row => {
+      const name = row[2] !== undefined ? row[2] : "";
+      const p = parseFloat(row[3]) || 0;
+      const a = parseFloat(row[4]) || 0;
+      const l = parseFloat(row[5]) || 0;
+      const m = parseFloat(row[6]) || 0;
+      const s = parseFloat(row[7]) || 0;
+      const totalWeeks = p + a + l + m + s;
+      const referralsGiven = parseFloat(row[8]) || 0;
+      const referralsReceived = parseFloat(row[9]) || 0;
+      const visitors = parseFloat(row[10]) || 0;
+      const educationUnits = parseFloat(row[12]) || 0;
+      const thankedAmount = parseFloat(row[14]) || 0;
+      const score = parseFloat(row[15]) || 0;
+      
+      // Calculate values
+      const avgReferralValue = referralsGiven ? (thankedAmount / referralsGiven).toFixed(2) : "N/A";
+      const avgThankedPerWeek = totalWeeks ? (thankedAmount / totalWeeks).toFixed(2) : "N/A";
+      const referralRatio = referralsReceived ? (referralsGiven / referralsReceived).toFixed(2) : "N/A";
+      const avgReferralsGivenPerWeek = totalWeeks ? (referralsGiven / totalWeeks).toFixed(2) : "N/A";
+      const avgReferralsReceivedPerWeek = totalWeeks ? (referralsReceived / totalWeeks).toFixed(2) : "N/A";
+      const avgVisitorsPerWeek = totalWeeks ? (visitors / totalWeeks).toFixed(2) : "N/A";
+      const avgCEUsPerWeek = totalWeeks ? (educationUnits / totalWeeks).toFixed(2) : "N/A";
+      
+      html += "<tr>";
+      html += `<td>${name}</td>`;
+      html += `<td>${totalWeeks}</td>`;
+      
+      // For Avg Referral Value column:
+      let avgReferralSort = (avgReferralValue === "N/A") ? Number.MAX_SAFE_INTEGER : parseFloat(avgReferralValue);
+      html += `<td data-sort="${avgReferralSort}" data-bs-toggle="tooltip" data-bs-html="true" title="Thanked for ${thankedAmount} worth of business" style="background-color:${getThankedColor(thankedAmount)};">${avgReferralValue}</td>`;
+      
+      // Repeat similarly for other numeric columns if necessary.
+      html += `<td data-bs-toggle="tooltip" data-bs-html="true" title="Thanked for ${thankedAmount} worth of business" style="background-color:${getThankedColor(thankedAmount)};">${avgThankedPerWeek}</td>`;
+      html += `<td data-bs-toggle="tooltip" data-bs-html="true" title="Referrals Given: ${referralsGiven}<br>Referrals Received: ${referralsReceived}">${referralRatio}</td>`;
+      html += `<td data-bs-toggle="tooltip" data-bs-html="true" title="Total Referrals Given: ${referralsGiven}" style="background-color:${getReferralGivenPerWeekColor(avgReferralsGivenPerWeek==="N/A"? 0 : parseFloat(avgReferralsGivenPerWeek))};">${avgReferralsGivenPerWeek}</td>`;
+      html += `<td data-bs-toggle="tooltip" data-bs-html="true" title="Total Referrals Received: ${referralsReceived}">${avgReferralsReceivedPerWeek}</td>`;
+      html += `<td data-bs-toggle="tooltip" data-bs-html="true" title="Total Visitors: ${visitors}" style="background-color:${getAvgVisitorsColor(avgVisitorsPerWeek==="N/A"? 0 : parseFloat(avgVisitorsPerWeek))};">${avgVisitorsPerWeek}</td>`;
+      html += `<td data-bs-toggle="tooltip" data-bs-html="true" title="Total CEUs: ${educationUnits}" style="background-color:${getCEUColor(avgCEUsPerWeek==="N/A"? 0 : parseFloat(avgCEUsPerWeek))};">${avgCEUsPerWeek}</td>`;
+      html += `<td data-bs-toggle="tooltip" data-bs-html="true" title="Score" style="background-color:${getScoreColor(score)};">${score}</td>`;
+      html += "</tr>";
+    });
+    html += "</tbody></table>";
+    document.getElementById("analysisTableContainer").innerHTML = html;
     
-    const avgReferralValue = referralsGiven ? (thankedAmount / referralsGiven).toFixed(2) : "N/A";
-    const avgThankedPerWeek = totalWeeks ? (thankedAmount / totalWeeks).toFixed(2) : "N/A";
-    const referralRatio = referralsReceived ? (referralsGiven / referralsReceived).toFixed(2) : "N/A";
-    const avgReferralsGivenPerWeek = totalWeeks ? (referralsGiven / totalWeeks).toFixed(2) : "N/A";
-    const avgReferralsReceivedPerWeek = totalWeeks ? (referralsReceived / totalWeeks).toFixed(2) : "N/A";
-    const avgVisitorsPerWeek = totalWeeks ? (visitors / totalWeeks).toFixed(2) : "N/A";
-    const avgCEUsPerWeek = totalWeeks ? (educationUnits / totalWeeks).toFixed(2) : "N/A";
+    // Initialize tooltips
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.map(function (tooltipTriggerEl) { return new bootstrap.Tooltip(tooltipTriggerEl); });
     
-    html += "<tr>";
-    html += `<td>${name}</td>`;
-    html += `<td>${totalWeeks}</td>`;
-    html += `<td data-bs-toggle="tooltip" data-bs-html="true" title="Thanked for ${thankedAmount} worth of business" style="background-color:${getThankedColor(thankedAmount)};">${avgReferralValue}</td>`;
-    html += `<td data-bs-toggle="tooltip" data-bs-html="true" title="Thanked for ${thankedAmount} worth of business" style="background-color:${getThankedColor(thankedAmount)};">${avgThankedPerWeek}</td>`;
-    html += `<td data-bs-toggle="tooltip" data-bs-html="true" title="Referrals Given: ${referralsGiven}<br>Referrals Received: ${referralsReceived}"`;
-    if (referralRatio !== "N/A") {
-      let ratio = parseFloat(referralRatio);
-      let bg = "";
-      if (ratio >= 1.5) bg = green;
-      else if (ratio >= 1) bg = lightYellow;
-      else if (ratio >= 0.5) bg = lightRed;
-      else bg = darkRed;
-      html += ` style="background-color:${bg};"`;
-    }
-    html += `>${referralRatio}</td>`;
-    html += `<td data-bs-toggle="tooltip" data-bs-html="true" title="Total Referrals Given: ${referralsGiven}" style="background-color:${getReferralGivenPerWeekColor(avgReferralsGivenPerWeek==="N/A"? 0 : parseFloat(avgReferralsGivenPerWeek))};">${avgReferralsGivenPerWeek}</td>`;
-    html += `<td data-bs-toggle="tooltip" data-bs-html="true" title="Total Referrals Received: ${referralsReceived}">${avgReferralsReceivedPerWeek}</td>`;
-    html += `<td data-bs-toggle="tooltip" data-bs-html="true" title="Total Visitors: ${visitors}" style="background-color:${getAvgVisitorsColor(avgVisitorsPerWeek==="N/A"? 0 : parseFloat(avgVisitorsPerWeek))};">${avgVisitorsPerWeek}</td>`;
-    html += `<td data-bs-toggle="tooltip" data-bs-html="true" title="Total CEUs: ${educationUnits}" style="background-color:${getCEUColor(avgCEUsPerWeek==="N/A"? 0 : parseFloat(avgCEUsPerWeek))};">${avgCEUsPerWeek}</td>`;
-    html += `<td data-bs-toggle="tooltip" data-bs-html="true" title="Score" style="background-color:${getScoreColor(score)};">${score}</td>`;
-    html += "</tr>";
-  });
-  html += "</tbody></table>";
-  document.getElementById("analysisTableContainer").innerHTML = html;
-  
-  var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-  tooltipTriggerList.map(function (tooltipTriggerEl) { return new bootstrap.Tooltip(tooltipTriggerEl); });
-  
-  $("#analysisTable").DataTable({
-    responsive: true,
-    pageLength: 100,
-    paging: true,
-    searching: true,
-    ordering: true,
-    autoWidth: false,
-    order: [[9, "desc"]],
-    dom: 'Bfrtip',
-    buttons: [
-      {
-        extend: 'print',
-        title: 'Traffic Lights Analysis',
-        customize: function (win) {
-          $(win.document.head).append(
-            '<style>' +
-            '@page { size: A4 landscape; margin: 10mm; } ' +
-            'body { font-size: 10pt; } ' +
-            'table { width: 100%; border-collapse: collapse; } ' +
-            'table th, table td { border: 1px solid #000; padding: 5px; } ' +
-            '</style>'
-          );
+    $("#analysisTable").DataTable({
+      responsive: true,
+      pageLength: 100,
+      paging: true,
+      searching: true,
+      ordering: true,
+      autoWidth: false,
+      order: [[9, "desc"]],
+      dom: 'Bfrtip',
+      buttons: [
+        {
+          extend: 'print',
+          title: 'Traffic Lights Analysis',
+          customize: function (win) {
+            $(win.document.head).append(
+              '<style>' +
+              '@page { size: A4 landscape; margin: 10mm; } ' +
+              'body { font-size: 10pt; } ' +
+              'table { width: 100%; border-collapse: collapse; } ' +
+              'table th, table td { border: 1px solid #000; padding: 5px; } ' +
+              '</style>'
+            );
+          }
         }
-      }
-    ]
-  });
-}
+      ]
+    });
+  }
+  
 
 $('a[data-bs-toggle="tab"]').on("shown.bs.tab", function (e) {
   $($.fn.dataTable.tables(true)).DataTable().columns.adjust();
